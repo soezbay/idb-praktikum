@@ -154,9 +154,9 @@ public class Datenzugriffsobjekt {
         List<Bestellung> result = em.createQuery(anfrage).getResultList();
         
         for (Bestellung a : result) {
-            System.out.println("BestellNr: " + a.getBestellNr()
-                    + ", Name: " + a.getBesteller().getVorname() + ", Datum: " + a.getBestellDatum());
-//                    + ", Artikel: " + a.getBestelldetails().stream().filter(s -> s.getArtikel().getName().contains()));
+            System.out.println("_____BestellNr: " + a.getBestellNr()
+                    + ", Name: " + a.getBesteller().getVorname() + " " + a.getBesteller().getName() + ", Artikelanzahl: " + a.getAnzahlPositionen()
+                    + ", Gesamtpreis: " + a.getGesamtPreis() + ", Datum: " + a.getBestellDatum());
         }
         return result;
     }
@@ -259,21 +259,6 @@ public class Datenzugriffsobjekt {
 //
 //    }
 
-    //        public ArrayList<Artikel> findArtikel(long artNr,
-    //            String name, String beschreibung, String bild, double preis) {
-    //
-    //        ArrayList<Artikel> artikel = new ArrayList<>();
-    //        artikel.add(em.find(Artikel.class, artNr));
-    //        artikel.add(em.find(Artikel.class, name));
-    //        artikel.add(em.find(Artikel.class, beschreibung));
-    //        artikel.add(em.find(Artikel.class, bild));
-    //        artikel.add(em.find(Artikel.class, preis));
-    //
-    //        System.out.println("Gefundene Artikel: \n");
-    //        artikel.forEach(a -> System.out.println(a.toString()));
-    //
-    //        return artikel;
-    //    }
     
     /**
      * Entity-Manager schließen.

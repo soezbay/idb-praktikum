@@ -41,8 +41,8 @@ public class Main {
 //        loeschenDesArtikelkatalogs();
         // Aufgabenblatt 2:
         anlegenNeuerKunden();
-//        bestellungenAufgeben();
-//        bestellungenSuchen();
+        bestellungenAufgeben();
+        bestellungenSuchen();
 //        loeschenVonBestellungen();
         // Datenzugriffsobjekt schließen
         dao.close();
@@ -406,69 +406,77 @@ public class Main {
      */
     public static void bestellungenAufgeben() {
 
-
         long lo = 1;
         Long l = lo;
         long ll = 1;
         {
-            Bestellung b1 = new Bestellung();
-            b1.setBestellNr(lo);
-            b1.setBestellDatum(new Date(20, 12, 12));
+            Bestellung b = new Bestellung();
+            b.setBestellNr(lo);
+            b.setBestellDatum(new Date(20, 12, 12));
 
-            Bestelldetails bd1 = new Bestelldetails();
-            Artikel a1 = dao.findeEntity(Artikel.class, ll);
-            bd1.setArtikel(a1);
-            bd1.setAnzahl(3);
-            bd1.setPreis(a1.getPreis() * bd1.getAnzahl());
-            bd1.setBestellung(b1);
-            
+            Bestelldetails bd = new Bestelldetails();
+            Artikel a = dao.findeEntity(Artikel.class, ll);
+            bd.setArtikel(a);
+            bd.setAnzahl(3);
+            bd.setPreis(a.getPreis() * bd.getAnzahl());
+            bd.setBestellung(b);
 
             Bestelldetails bd2 = new Bestelldetails();
             Artikel a2 = dao.findeEntity(Artikel.class, ll + 1);
             bd2.setArtikel(a2);
             bd2.setAnzahl(3);
             bd2.setPreis(a2.getPreis() * bd2.getAnzahl());
-            bd2.setBestellung(b1);
-            
+            bd2.setBestellung(b);
 
-            dao.setzeBesteller(b1, "max.mustermann@studmail.w-hs.de");
-            dao.saveBestelldetail(bd1);
+            b.setAnzahlPositionen(bd2.getAnzahl() + bd.getAnzahl());
+            b.setGesamtPreis(bd2.getPreis() + bd.getPreis());
+
+            dao.setzeBesteller(b, "max.mustermann@studmail.w-hs.de");
+            dao.saveBestelldetail(bd);
             dao.saveBestelldetail(bd2);
+
         }
 
         {
-            Bestellung b2 = new Bestellung();
-            b2.setBestellNr(lo + 1);
-            b2.setBestellDatum(new Date(20, 3, 3));
+            Bestellung b = new Bestellung();
+            b.setBestellNr(lo + 1);
+            b.setBestellDatum(new Date(20, 3, 3));
 
-            Bestelldetails bd2 = new Bestelldetails();
-            Artikel a2 = dao.findeEntity(Artikel.class, ll + 3);
-            bd2.setArtikel(a2);
-            bd2.setAnzahl(3);
-            bd2.setPreis(a2.getPreis() * bd2.getAnzahl());
-            bd2.setBestellung(b2);
-            
+            Bestelldetails bd = new Bestelldetails();
+            Artikel a = dao.findeEntity(Artikel.class, ll + 3);
+            bd.setArtikel(a);
+            bd.setAnzahl(10);
+            bd.setPreis(a.getPreis() * bd.getAnzahl());
+            bd.setBestellung(b);
 
-            dao.setzeBesteller(b2, "kruger.kruger@studmail.w-hs.de");
-            dao.saveBestelldetail(bd2);
+            b.setAnzahlPositionen(bd.getAnzahl());
+            b.setGesamtPreis(bd.getPreis());
+
+            dao.setzeBesteller(b, "kruger.kruger@studmail.w-hs.de");
+            dao.saveBestelldetail(bd);
+
         }
 
-//        {
-//
-//            Bestellung b3 = new Bestellung();
-//            b3.setBestellNr(lo + 1);
-//            b3.setBestellDatum(new Date(2020, 4, 4));
-//            
-//
-//            Bestelldetails bd2 = new Bestelldetails();
-//            Artikel a2 = dao.findeEntity(Artikel.class, ll + 4);
-//            bd2.setArtikel(a2);
-//            bd2.setAnzahl(3);
-//            bd2.setPreis(a2.getPreis() * bd2.getAnzahl());
-//            bd2.setBestellung(b3);
-//            
-//            dao.setzeBesteller(b3, "jean.kirschstein@studmail.w-hs.de");
-//        }
+        {
+
+            Bestellung b = new Bestellung();
+            b.setBestellNr(lo + 2);
+            b.setBestellDatum(new Date(2020, 4, 4));
+
+            Bestelldetails bd = new Bestelldetails();
+            Artikel a = dao.findeEntity(Artikel.class, ll);
+            bd.setArtikel(a);
+            bd.setAnzahl(3);
+            bd.setPreis(a.getPreis() * bd.getAnzahl());
+            bd.setBestellung(b);
+
+            b.setAnzahlPositionen(bd.getAnzahl());
+            b.setGesamtPreis(bd.getPreis());
+
+            dao.setzeBesteller(b, "jean.kirschstein@studmail.w-hs.de");
+            dao.saveBestelldetail(bd);
+
+        }
     }
 
     /**
@@ -492,29 +500,29 @@ public class Main {
      * Datenzugriffsklasse um die benötigte Datenzugriffslogik.
      *
      * 1. Finden Sie alle Bestellungen, über einen konkreten Artikel Ihrer Wahl.
-     * 2. Finden Sie die Bestellung mit dem höchsten Gesamtpreis.
-     * 3. Welche Bestellung oder Bestellungen verfügen über die meisten bestellten
+     * 2. Finden Sie die Bestellung mit dem höchsten Gesamtpreis. 3. Welche
+     * Bestellung oder Bestellungen verfügen über die meisten bestellten
      * Artikelpositionen.
      */
     public static void bestellungenSuchen() {
-        
-//        List<Object[]> resultList = dao.getEntityList("SELECT a.name, b.bestellNr, b.besteller"
-//                + " FROM Artikel a, Bestellung b, Bestelldetails s WHERE b.bestellNr = s.bestellung AND a.artNr = s.artikelID"
-//                + " ORDER BY b.bestellNr");
-        
-        List<Bestellung> resultList = dao.getEntitysBestellungen("SELECT b FROM Bestellung b JOIN b.bestellungsdetails bd WHERE bd.artikel.name = 'Nike Pandas Dunk Low'");
-        
-//        for (Object[] result : resultList) {
-//            String artikelname = (String) result[0];
-//            long b  = (long) result[1];
-//            Kunde k = (Kunde) result[2];
-            
-//            System.out.println(b.getBestellNr() + ": " + b.getBesteller().getName() + " | " +
-//                    b.getBesteller().getEmail() + " | " + b.getBestellDatum());
 
-//            System.out.println("BestellungsID:" + b + ", Artikelname: " + artikelname + ", Eamil: " + k.getEmail());
-//        }
-        
+        System.out.println("");
+        System.out.println("@@@ Bestellung Suchen @@@");
+        System.out.println("Bestimmtes Artikel:");
+        List<Bestellung> resultList
+                = dao.getEntitysBestellungen("SELECT b FROM Bestellung b JOIN b.bestelldetails bd WHERE bd.artikel.name = 'Nike Pandas Dunk Low'");
+
+        System.out.println("Bestellung mit höchster Gesamtpreis:");
+        List<Bestellung> resultList2
+                = dao.getEntitysBestellungen("SELECT b FROM Bestellung b WHERE b.gesamtpreis = "
+                        + "(SELECT MAX(bd.gesamtpreis) FROM Bestellung bd)");
+
+//        List<Bestellung> resultList3
+//                = dao.getEntitysBestellungen("SELECT b FROM Bestellung b WHERE b.anzahlPositionen = "
+//            + "(SELECT MAX(bd.anzahlPositionen) FROM Bestellung bd)");
+        List<Bestellung> resultList3
+                = dao.getEntitysBestellungen("SELECT b FROM Bestellung b WHERE b.anzahlPositionen = "
+                        + "(SELECT MAX(bd.anzahlPositionen) FROM Bestellung bd)");
     }
 
     /**
