@@ -1,0 +1,135 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package edu.whs.idb.praktikum.servlets;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Aufgabenblaetter 4 und 5
+ * 
+ * Die Klasse ViewServlet wird erst ab dem Aufgabenblatt 4 relevant und kann 
+ * im Zuge der Bearbeitung des Aufgabenblatts 3 noch ignoriert werden
+ * 
+ * Das ViewServlet soll die Rolle der View im Rahmen des MVC-Architekturmusters 
+ * uebernehmen. In diesem Sinne wird die Request-Verarbeitung nach Ausfuehrung 
+ * der Geschaeftslogik des Controllers an dieses Servlets weitergeleitet.
+ * 
+ * Die Aufgabe des Anzeige-Servlets ist es, den von der Geschaeftslogik 
+ * aufbereiteten Zustand in eine HTML-Antwort zu rendern.
+ * 
+ * @author laarmann
+ */
+@WebServlet(name = "ViewServlet", urlPatterns = {"/ViewServlet"})
+public class ViewServlet extends HttpServlet {
+
+    /**
+     * Aufgabenblatt 4 und 5
+     * 
+     * Hier soll entlang der Aufgabenblaetter 4 und 5 sukzessive die 
+     * Anzeigelogik entstehen.
+     * 
+     * 
+     *   Aufgabenblatt 4: Arbeitsschritt 1:
+     * 
+     *    - Kopieren Sie den kompletten Source-Code der aus der 
+     *      renderResponse-Methode des ControllerServlets hier hinein
+     * 
+     *   Aufgabenblatt 4: Arbeitsschritt 2:
+     * 
+     *    - Definieren Sie im Parameter href des Anker-Tags zur Auswahl
+     *      der Kategorien einen GET-Request mit dem Kategoriekuerzel als
+     *      Parameter
+     * 
+     *    - Pruefen Sie, ob im Request-Scope ein Attribut mit der 
+     *      ausgewaehlten Kategorie liegt:
+     * 
+     *      1. Ja:
+     * 
+     *       - Fuegen Sie vor dem angezeigten Namen der ausgwaehlten 
+     *         Kategorie ein '>' ein.
+     * 
+     *       - Stellen Sie die Artikel der ausgewaehlten Kategorie in 
+     *         Tabellenform dar.
+     * 
+     *      2. Nein:
+     *       
+     *       - Die Kategorieliste ohne Markierung anzeigen
+     * 
+     *       - Die Artikeltabelle leer oder komplett weg lassen.
+     * 
+     *   Aufgabenblatt 5: Arbeitsschritt 2:
+     *     
+     *       - Passen Sie den Code derart an, dass die Markierung der 
+     *         ausgewaehlten Kategorien nun auf Basis der Liste erfolgt.
+     *
+     * 
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            
+            /**
+             * Ab Aufgabenblatt 4 hier die Anzeigelogik platzieren
+             */
+            
+            
+            
+        }
+
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
