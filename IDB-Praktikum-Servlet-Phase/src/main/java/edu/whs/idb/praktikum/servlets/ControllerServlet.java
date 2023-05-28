@@ -6,6 +6,7 @@
 package edu.whs.idb.praktikum.servlets;
 
 import edu.whs.idb.praktikum.dao.Datenzugriffsobjekt;
+import edu.whs.idb.praktikum.entities.Kategorie;
 import java.io.IOException;
 import jakarta.annotation.sql.DataSourceDefinition;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Controller-Servlet, das die Geschaeftslogik im Sinne des MVC-Musters
@@ -150,15 +155,25 @@ public class ControllerServlet extends HttpServlet {
          * - Lokale Variablendeklarationen - Datenzugriffsobjekt ermitteln -
          * Ggf. Request-Parameter auslesen
          */
+        Datenzugriffsobjekt dao = getDao();
         /**
          * Sessionverwaltung (Aufgabenblatt 5)
          */
         /**
          * Beginn der eigentlichen Geschaeftslogik
          */
+
+//        List<Artikel> k = dao.gibArtikel("SELECT a FROM Artikel a");
+        List<Kategorie> k = dao.gibKategorien();
         /**
          * Daten für die Anzeigelogik im Request-Scope aufbereiten
          */
+
+        for (int i = 0; i < k.size(); i++) {
+            String kategorieName = k.get(i).getName();
+            request.setAttribute("kat_" + i, kategorieName);
+        }
+
         /**
          * Weiterleitung an die Anzeiglogik:
          *
@@ -224,17 +239,6 @@ public class ControllerServlet extends HttpServlet {
              * der weiteren Arbeitsschritte als Grundlage verwendet und
              * angepasst werden.
              */
-//            out.println("<!DOCTYPE html>");
-//            out.println("<html>");
-//            out.println("<head>");
-//            out.println("<title>Testseite</title>");            
-//            out.println("</head>");
-//            out.println("<body>");
-//            out.println("<h1>Testseite</h1>");
-//            out.println("<p>Wenn Sie diese Zeile lesen können, ist "
-//                        + "die Web-Applikation startklar</p>");
-//            out.println("</body>");
-//            out.println("</html>");
             out.println("<!DOCTYPE html>"
                     + "<html>"
                     + "<head>"
@@ -276,21 +280,39 @@ public class ControllerServlet extends HttpServlet {
                     + "    .active {"
                     + "      background-color: #ddd;"
                     + "    }"
-                    + "  </style>" 
+                    + "  </style>"
                     + "</head>"
                     + "<body>"
                     + "  <div class=\"navbar\">"
                     + "    <h2> Kategorien</h2>"
-                    + "    <ul>"
-                    + "      <li><a href=\"#\" class=\"active\">Startseite</a></li>"
-                    + "      <li><a href=\"#\">Bücher</a></li>"
-                    + "      <li><a href=\"#\">Lebensmittel</a></li>"
-                    + "      <li><a href=\"#\">Hardware</a></li>"
-                    + "    </ul>"
-                    + "  </div>"
-                    + "  <div class=\"content\">"
+                    + "    <ul>");
+
+            out.println("<li><a href=\"#\" class=\"active\">Startseite</a></li>");
+
+            String attr = "";
+            ArrayList<String> kategorien = new ArrayList<>();
+
+            int j = 0;
+            while (request.getAttribute("kat_" + j) != null) {
+                attr = request.getAttribute("kat_" + j).toString();
+                kategorien.add(attr);
+                j++;
+            }
+            Collections.sort(kategorien);
+
+            int i = 0;
+            while (kategorien.stream().count() > i) {
+                    out.println("<li><a href=\"#\">" + kategorien.get(i) +"</a></li>");
+                    i++;
+            }
+
+            out.println("</ul>");
+            out.println("</div>");
+
+            out.println(
+                    "<div class=\"content\">"
                     + "    <h1>Willkommen auf unserer Website!</h1>"
-                    + "    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis purus in erat semper, eu pulvinar nulla pharetra.</p>\n"
+                    + "    <p>Testtext_1</p>\n"
                     + "  </div>"
                     + "</body>"
                     + "</html>");
@@ -309,10 +331,10 @@ public class ControllerServlet extends HttpServlet {
      */
     private Datenzugriffsobjekt getDao() {
 
-        Datenzugriffsobjekt dao = new Datenzugriffsobjekt("IDB-Praktikum-Web-AppPU");
+        Datenzugriffsobjekt dao;
 
         // Datenzugriffsobjekt im Servlet-Context finden ...
-//        dao =
+        dao = (Datenzugriffsobjekt) getServletContext().getAttribute("dao");
         // ... und zurueckgeben
         return dao;
     }
