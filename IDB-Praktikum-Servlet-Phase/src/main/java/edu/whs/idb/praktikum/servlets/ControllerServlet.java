@@ -6,19 +6,20 @@
 package edu.whs.idb.praktikum.servlets;
 
 import edu.whs.idb.praktikum.dao.Datenzugriffsobjekt;
+import edu.whs.idb.praktikum.entities.Artikel;
 import edu.whs.idb.praktikum.entities.Kategorie;
 import java.io.IOException;
 import jakarta.annotation.sql.DataSourceDefinition;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller-Servlet, das die Geschaeftslogik im Sinne des MVC-Musters
@@ -163,15 +164,18 @@ public class ControllerServlet extends HttpServlet {
          * Beginn der eigentlichen Geschaeftslogik
          */
 
-//        List<Artikel> k = dao.gibArtikel("SELECT a FROM Artikel a");
-        List<Kategorie> k = dao.gibKategorien();
+        List<Kategorie> k = dao.gibAlleKategorien();
+        Collections.sort(k, (o1, o2) -> o1.getName().compareTo(o2.getName()));
+        Kategorie startseite =  new Kategorie();
+        startseite.setKurzel("ST");
+        startseite.setName("Startseite");
+        k.add(0, startseite);
         /**
          * Daten für die Anzeigelogik im Request-Scope aufbereiten
          */
-
         for (int i = 0; i < k.size(); i++) {
-            String kategorieName = k.get(i).getName();
-            request.setAttribute("kat_" + i, kategorieName);
+            Kategorie kat = k.get(i);
+            request.setAttribute("kat_" + i, kat);
         }
 
         /**
@@ -181,7 +185,32 @@ public class ControllerServlet extends HttpServlet {
          *
          * - Ab Aufgabenblatt 4: An das Anzeige-Servlet
          */
-        renderResponse(request, response);
+//        RequestDispatcher rd = request.getRequestDispatcher("ViewServlet");
+//        rd.forward(request, response);
+
+        String categoryIdentifier = request.getParameter("katkuerzel");
+        System.out.println(categoryIdentifier);
+        String kuerzel = categoryIdentifier.substring(categoryIdentifier.length() - 2);
+//        System.out.println(kuerzel);
+
+        List<Artikel> selectedArtikel = dao.gibAlleArtikel()
+                .stream()
+                .filter(
+                        a -> a.getKategorie().getKurzel().contains(categoryIdentifier))
+                .collect(Collectors.toList());
+
+        selectedArtikel.stream()
+                .map(Artikel::getName)
+                .forEach(System.out::println);
+        
+        request.setAttribute("artikel_list", selectedArtikel);
+
+        request.setAttribute("selectedCategory", categoryIdentifier);
+        request.setAttribute("selectedCategoryFullName", k.stream().filter(a -> a.getKurzel().contains(categoryIdentifier)).toList().get(0).getName());
+
+        RequestDispatcher rd = request.getRequestDispatcher("ViewServlet");
+        rd.forward(request, response);
+
     }
 
     /**
@@ -228,99 +257,21 @@ public class ControllerServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    protected void renderResponse(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-
-            /**
-             * Der unten stehnde Code hat nur den Zweck, den Startzustand fuer
-             * das Aufgabenblatt 3 zu pruefen. Der Code kann natuerlich im Zuge
-             * der weiteren Arbeitsschritte als Grundlage verwendet und
-             * angepasst werden.
-             */
-            out.println("<!DOCTYPE html>"
-                    + "<html>"
-                    + "<head>"
-                    + "  <style>"
-                    + "    body {"
-                    + "      margin: 0;"
-                    + "      padding: 0;"
-                    + "    }"
-                    + "    \n"
-                    + "    .navbar {"
-                    + "      width: 200px;"
-                    + "      height: 100vh;"
-                    + "      background-color: #f1f1f1;"
-                    + "      position: fixed;"
-                    + "      top: 0;"
-                    + "      left: 0;"
-                    + "    }"
-                    + "    \n"
-                    + "    .content {"
-                    + "      margin-left: 200px;"
-                    + "      padding: 20px;"
-                    + "    }"
-                    + "    \n"
-                    + "    ul {"
-                    + "      list-style-type: none;"
-                    + "      padding: 0;"
-                    + "      margin: 0;"
-                    + "    }"
-                    + "    \n"
-                    + "    li {"
-                    + "      padding: 10px;"
-                    + "    }"
-                    + "    \n"
-                    + "    a {"
-                    + "      text-decoration: none;"
-                    + "      color: #333;"
-                    + "    }"
-                    + "    \n"
-                    + "    .active {"
-                    + "      background-color: #ddd;"
-                    + "    }"
-                    + "  </style>"
-                    + "</head>"
-                    + "<body>"
-                    + "  <div class=\"navbar\">"
-                    + "    <h2> Kategorien</h2>"
-                    + "    <ul>");
-
-            out.println("<li><a href=\"#\" class=\"active\">Startseite</a></li>");
-
-            String attr = "";
-            ArrayList<String> kategorien = new ArrayList<>();
-
-            int j = 0;
-            while (request.getAttribute("kat_" + j) != null) {
-                attr = request.getAttribute("kat_" + j).toString();
-                kategorien.add(attr);
-                j++;
-            }
-            Collections.sort(kategorien);
-
-            int i = 0;
-            while (kategorien.stream().count() > i) {
-                    out.println("<li><a href=\"#\">" + kategorien.get(i) +"</a></li>");
-                    i++;
-            }
-
-            out.println("</ul>");
-            out.println("</div>");
-
-            out.println(
-                    "<div class=\"content\">"
-                    + "    <h1>Willkommen auf unserer Website!</h1>"
-                    + "    <p>Testtext_1</p>\n"
-                    + "  </div>"
-                    + "</body>"
-                    + "</html>");
-
-        }
-
-    }
-
+//    protected void renderResponse(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException {
+//        response.setContentType("text/html;charset=UTF-8");
+//        try (PrintWriter out = response.getWriter()) {
+//
+//            /**
+//             * Der unten stehnde Code hat nur den Zweck, den Startzustand fuer
+//             * das Aufgabenblatt 3 zu pruefen. Der Code kann natuerlich im Zuge
+//             * der weiteren Arbeitsschritte als Grundlage verwendet und
+//             * angepasst werden.
+//             */
+//
+//        }
+//
+//    }
     /**
      * Sie koennen diese Methode verwenden, um den Zugriff auf das im
      * Application-Scope befindliche Datenzugriffsobjekt zu ermoeglichen.
@@ -351,6 +302,7 @@ public class ControllerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 
@@ -366,6 +318,7 @@ public class ControllerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+
     }
 
     /**
@@ -375,7 +328,7 @@ public class ControllerServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "ControllerServlet";
     }// </editor-fold>
 
 }
