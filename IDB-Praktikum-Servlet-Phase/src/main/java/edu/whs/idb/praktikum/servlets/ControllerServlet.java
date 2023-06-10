@@ -44,7 +44,10 @@ import java.util.stream.Collectors;
 )
 @WebServlet(name = "ControllerServlet", urlPatterns = {"/ControllerServlet"})
 public class ControllerServlet extends HttpServlet {
-
+        
+    private int firstReqeustflag = 0;
+    private int secondReqeustflag = 0;
+    
     /**
      * Aufgabenblatt 3, 4 und 5
      *
@@ -152,10 +155,7 @@ public class ControllerServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        /**
-         * - Lokale Variablendeklarationen - Datenzugriffsobjekt ermitteln -
-         * Ggf. Request-Parameter auslesen
-         */
+
         Datenzugriffsobjekt dao = getDao();
         /**
          * Sessionverwaltung (Aufgabenblatt 5)
@@ -166,7 +166,7 @@ public class ControllerServlet extends HttpServlet {
 
         List<Kategorie> k = dao.gibAlleKategorien();
         Collections.sort(k, (o1, o2) -> o1.getName().compareTo(o2.getName()));
-        Kategorie startseite =  new Kategorie();
+        Kategorie startseite = new Kategorie();
         startseite.setKurzel("ST");
         startseite.setName("Startseite");
         k.add(0, startseite);
@@ -185,30 +185,41 @@ public class ControllerServlet extends HttpServlet {
          *
          * - Ab Aufgabenblatt 4: An das Anzeige-Servlet
          */
-//        RequestDispatcher rd = request.getRequestDispatcher("ViewServlet");
-//        rd.forward(request, response);
-
+        RequestDispatcher rd = request.getRequestDispatcher("ViewServlet");
+        if(this.firstReqeustflag == 0) {
+            rd.include(request, response);
+            this.firstReqeustflag = 1;           
+        }
+        
+        
         String categoryIdentifier = request.getParameter("katkuerzel");
+        System.out.println("categoryIdentifier TEST_________________________");
         System.out.println(categoryIdentifier);
-        String kuerzel = categoryIdentifier.substring(categoryIdentifier.length() - 2);
+        
+
+//        String kuerzel = categoryIdentifier.substring(categoryIdentifier.length() - 2);
 //        System.out.println(kuerzel);
 
-        List<Artikel> selectedArtikel = dao.gibAlleArtikel()
-                .stream()
-                .filter(
-                        a -> a.getKategorie().getKurzel().contains(categoryIdentifier))
-                .collect(Collectors.toList());
-
+        //Nur die Artikel mit dem gewünschtem Kürzel ausfiltern
+        List<Artikel> selectedArtikel;
+        if (categoryIdentifier != null) {
+            selectedArtikel = dao.gibAlleArtikel()
+                    .stream()
+                    .filter(a -> a.getKategorie().getKurzel().contains(categoryIdentifier))
+                    .collect(Collectors.toList());
+        } else {
+            selectedArtikel = Collections.emptyList();
+        }
+        
+        System.out.println("SELECTED ARTIKEL TEST_________________________");
         selectedArtikel.stream()
                 .map(Artikel::getName)
                 .forEach(System.out::println);
-        
-        request.setAttribute("artikel_list", selectedArtikel);
 
+        request.setAttribute("artikel_list", selectedArtikel);
         request.setAttribute("selectedCategory", categoryIdentifier);
         request.setAttribute("selectedCategoryFullName", k.stream().filter(a -> a.getKurzel().contains(categoryIdentifier)).toList().get(0).getName());
 
-        RequestDispatcher rd = request.getRequestDispatcher("ViewServlet");
         rd.forward(request, response);
 
     }

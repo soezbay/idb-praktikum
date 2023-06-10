@@ -140,17 +140,24 @@ public class ViewServlet extends HttpServlet {
                     + "    <h2> Kategorien</h2>"
                     + "    <ul>");
 
+            // Anzeigen der Kategorien
+            String selectedCategory = (String) request.getAttribute("selectedCategory");
             for (int i = 0; request.getAttribute("kat_" + i) != null; i++) {
                 Kategorie k = (Kategorie) request.getAttribute("kat_" + i);
                 String kat_kurzel = "ControllerServlet?katkuerzel=" + k.getKurzel();
                 String kat_name = k.getName();
-                out.println("<li class=\"active\"><a href=\"" + kat_kurzel + "\">" + kat_name + " </a></li>");
+
+                // Überprüfen, ob die aktuelle Kategorie ausgewählt ist
+                if (selectedCategory != null && selectedCategory.equals(k.getKurzel())) {
+                    out.println("<li class=\"active\"><a href=\"" + kat_kurzel + "\"> > " + kat_name + " </a></li>");
+                } else {
+                    out.println("<li><a href=\"" + kat_kurzel + "\">" + kat_name + " </a></li>");
+                }
             }
 
             out.println("</ul>");
             out.println("</div>");
 
-            String selectedCategory = (String) request.getAttribute("selectedCategory");
             String selectedCategoryFullName = (String) request.getAttribute("selectedCategoryFullName");
             List<Artikel> artikel = (List<Artikel>) request.getAttribute("artikel_list");
 
